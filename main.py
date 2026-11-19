@@ -7,8 +7,8 @@ from flask import Flask, request
 
 # === НАСТРОЙКИ ===
 BOT_TOKEN = "9020783643:AAH8Pit-yeAwzQjdkSIvGu4UIMjj9Z_7lR4"
-CRYPTO_TOKEN = "5884767841"
-ADMIN_ID = 123456789 # Твой Telegram ID
+CRYPTO_TOKEN = "663855:AAcDzgWR4pqFxBOIryv6mHp69gPeq3bK2p1"
+ADMIN_ID = 5884767841 # Твой Telegram ID
 # ================
 
 bot = telebot.TeleBot(BOT_TOKEN)
