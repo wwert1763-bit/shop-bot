@@ -34,7 +34,7 @@ def main_menu():
     markup.add(
         types.InlineKeyboardButton("🌿 Выбрать город", callback_data="choose_city"),
         types.InlineKeyboardButton("👤 Профиль", callback_data="profile"),
-        types.InlineKeyboardButton("🆘 Поддержка", url="https://t.me/твой_менеджер")
+        types.InlineKeyboardButton("🆘 Поддержка", url="https://t.me/neeloq")
     )
     return markup
 
@@ -87,7 +87,6 @@ def item_selected(call):
     markup = types.InlineKeyboardMarkup(row_width=1)
     markup.add(
         types.InlineKeyboardButton("💎 Оплатить криптой (USDT)", callback_data=f"pay_crypto_{item}"),
-        types.InlineKeyboardButton("💳 Оплатить картой", callback_data=f"pay_card_{item}"),
         types.InlineKeyboardButton("🔙 Назад", callback_data="choose_city")
     )
     bot.edit_message_text("💳 <b>Выберите способ оплаты:</b>", call.message.chat.id, call.message.message_id, parse_mode="HTML", reply_markup=markup)
@@ -135,5 +134,9 @@ def webhook():
         return str(e), 400
 
 if __name__ == "__main__":
+    import threading
+    # Запускаем бота в отдельном потоке
+    threading.Thread(target=bot.infinity_polling, daemon=True).start()
+    # Запускаем веб-сервер для Render
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
