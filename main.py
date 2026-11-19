@@ -4,11 +4,12 @@ import sqlite3
 import requests
 import os
 from flask import Flask, request
+import threading
 
 # === НАСТРОЙКИ ===
-BOT_TOKEN = "9020783643:AAH8Pit-yeAwzQjdkSIvGu4UIMjj9Z_7lR4"
-CRYPTO_TOKEN = "663855:AAcDzgWR4pqFxBOIryv6mHp69gPeq3bK2p1"
-ADMIN_ID = 5884767841 # Твой Telegram ID
+BOT_TOKEN = os.environ.get("BOT_TOKEN", "9020783643:AAH8Pit-yeAwzQjdkSIvGu4UIMjj9Z_7lR4")
+CRYPTO_TOKEN = os.environ.get("CRYPTO_TOKEN", "663855:AAcDzgWR4pqFxBOIryv6mHp69gPeq3bK2p1")
+ADMIN_ID = 8849511841 # Твой Telegram ID
 # ================
 
 bot = telebot.TeleBot(BOT_TOKEN)
@@ -61,12 +62,25 @@ def start_message(message):
 # --- ГОРОД ---
 @bot.callback_query_handler(func=lambda call: call.data == "choose_city")
 def choose_city(call):
+    CITIES = {
+        "msk": "Москва", "spb": "Санкт-Петербург", "ekb": "Екатеринбург",
+        "nsk": "Новосибирск", "kzn": "Казань", "nnov": "Нижний Новгород",
+        "chel": "Челябинск", "sam": "Самара", "omsk": "Омск",
+        "rost": "Ростов-на-Дону", "ufa": "Уфа", "kras": "Красноярск",
+        "perm": "Пермь", "volg": "Волгоград", "vor": "Воронеж",
+        "sarat": "Саратов", "krasnod": "Краснодар", "tyum": "Тюмень",
+        "tomsk": "Томск", "izh": "Ижевск", "barn": "Барнаул",
+        "ulyan": "Ульяновск", "irk": "Иркутск", "yaro": "Ярославль",
+        "vlad": "Владивосток", "makh": "Махачкала", "tula": "Тула",
+        "kemer": "Кемерово", "chita": "Чита", "kalin": "Калининград"
+    }
+    
     markup = types.InlineKeyboardMarkup(row_width=2)
-    markup.add(
-        types.InlineKeyboardButton("Москва", callback_data="city_msk"),
-        types.InlineKeyboardButton("СПБ", callback_data="city_spb"),
-        types.InlineKeyboardButton("Екатеринбург", callback_data="city_ekb")
-    )
+    buttons = []
+    for city_code, city_name in CITIES.items():
+        buttons.append(types.InlineKeyboardButton(city_name, callback_data=f"city_{city_code}"))
+    
+    markup.add(*buttons)
     bot.edit_message_text("🏙 <b>Выберите город:</b>", call.message.chat.id, call.message.message_id, parse_mode="HTML", reply_markup=markup)
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith("city_"))
@@ -87,6 +101,7 @@ def item_selected(call):
     markup = types.InlineKeyboardMarkup(row_width=1)
     markup.add(
         types.InlineKeyboardButton("💎 Оплатить криптой (USDT)", callback_data=f"pay_crypto_{item}"),
+        types.InlineKeyboardButton("💳 Оплатить картой", callback_data=f"pay_card_{item}"),
         types.InlineKeyboardButton("🔙 Назад", callback_data="choose_city")
     )
     bot.edit_message_text("💳 <b>Выберите способ оплаты:</b>", call.message.chat.id, call.message.message_id, parse_mode="HTML", reply_markup=markup)
@@ -134,9 +149,7 @@ def webhook():
         return str(e), 400
 
 if __name__ == "__main__":
-    import threading
-    # Запускаем бота в отдельном потоке
+    # Запуск бота в отдельном потоке, чтобы не блокировать Flask
     threading.Thread(target=bot.infinity_polling, daemon=True).start()
-    # Запускаем веб-сервер для Render
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
