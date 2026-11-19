@@ -6,8 +6,8 @@ import os
 from flask import Flask, request
 
 # === НАСТРОЙКИ ===
-BOT_TOKEN = "ТВОЙ_ТОКЕН_БОТА"
-CRYPTO_TOKEN = "ТВОЙ_ТОКЕН_CRYPTOBOT"
+BOT_TOKEN = "9020783643:AAH8Pit-yeAwzQjdkSIvGu4UIMjj9Z_7lR4"
+CRYPTO_TOKEN = "5884767841"
 ADMIN_ID = 123456789 # Твой Telegram ID
 # ================
 
